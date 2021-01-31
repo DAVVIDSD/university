@@ -14,7 +14,6 @@ import GoogleLogin from "react-google-login";
 import useAuthContext from '../hooks/useAuthContext';
 
 
-
 const useStyles = makeStyles((theme) => ({
   paper: {
     // marginTop: theme.spacing(8),
@@ -154,7 +153,6 @@ const SignIn = () => {
           </div>
         </Container>
       </div>
-
     </>
   );
 }
