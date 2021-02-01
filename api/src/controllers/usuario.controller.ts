@@ -44,11 +44,10 @@ export class UsuarioController {
       },
     })
     usuario: Omit<Usuario, 'id'>,
-  ): Promise<Usuario> {
-    console.log(usuario);
+  ): Promise<object> {
     return this.usuarioRepository.create(usuario);
   }
-
+    
   @get('/usuarios/count')
   @response(200, {
     description: 'Usuario model count',

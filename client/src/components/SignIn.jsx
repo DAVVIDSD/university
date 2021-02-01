@@ -1,101 +1,69 @@
-import React, {useState} from 'react';
+import React, { useState } from "react";
 // Components
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import {makeStyles} from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import TextField from "@material-ui/core/TextField";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@material-ui/core/Typography";
+import Container from "@material-ui/core/Container";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 // Login
 import GoogleLogin from "react-google-login";
-import useAuthContext from '../hooks/useAuthContext';
-
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    // marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-    textAlign: 'center'
-
-  },
-  submit: {
-    margin: theme.spacing(1, 0, 0),
-  },
-  body: {
-    height: '100vh',
-    paddingTop: '80px',
-  },
-}));
+import useAuthContext from "../hooks/useAuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { Authlogin, GoogleAuth } from "../Redux/Actions/loginAction";
+// Form Validation
+import { useFormik } from "formik";
+import { LoginValidationSchema } from "../validations/index";
+// Styles
+import loginStyle from "../Styles/LoginStyle";
 
 const SignIn = () => {
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const {login} = useAuthContext()
-
-  const HandlerSubmit = () => {
-    setLoading(true)
-    // if (input === 'HOLA') {
-
-    const data = {
-      name: input
-    }
-    if (loading === false) {
-      setTimeout(() => {
-        login(data)
-      }, 1000)
-    }
-    // }
-  }
-
-  const changeLoading = () => {
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
-  }
-
-  const classes = useStyles();
-  const url = "http://localhost:5000";
-
+  const dispatch = useDispatch();
+  // User State
+  const user = useSelector((state) => state.user.data.data);
+  // Loading
+  const [loading, setLoading] = useState(false);
+  // Login Sesion
+  const { login } = useAuthContext();
+  //Styles
+  const classes = loginStyle();
+  // Oauth google
   const responseGoogle = async (response) => {
     const profile = response.profileObj;
-    // const data = {
-    //   nombre: profile.name,
-    //   apellido: profile.familyName,
-    //   email: profile.email
-    // }
-    // const res = await fetch(`${url}/usuarios`, {
-    //   method: "POST",
-    //   body: JSON.stringify(data),
-    //   headers: {
-    //     "content-type": "application/json",
-    //   },
-    // });
-    login(profile)
-    // console.log(res);
-
+    const data = {
+      nombre: profile.name,
+      apellido: profile.familyName,
+      email: profile.email,
+      password: profile.googleId,
+    };
+    dispatch(GoogleAuth(data));
+    login(user);
   };
+
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: LoginValidationSchema,
+
+    onSubmit: (values, { resetForm }) => {
+      setLoading(true);
+      setTimeout(() => {
+        dispatch(Authlogin(values));
+        login(user);
+        setLoading(false);
+      }, 600);
+      resetForm();
+    },
+  });
+
   return (
     <>
-      {loading && (
-        <>
-          <LinearProgress />
-          {changeLoading()}
-        </>
-      )}
-      <div className={classes.body} >
+      <div className={classes.body}>
         <Container component="main" maxWidth="xs">
           <CssBaseline />
           <div className={classes.paper}>
@@ -104,8 +72,12 @@ const SignIn = () => {
             </Avatar>
             <Typography component="h1" variant="h5">
               Sign in
-        </Typography>
-            <form className={classes.form} noValidate>
+            </Typography>
+            <form
+              onSubmit={formik.handleSubmit}
+              className={classes.form}
+              noValidate
+            >
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -114,10 +86,11 @@ const SignIn = () => {
                 id="email"
                 label="Email Address"
                 name="email"
-                value={input}
-                autoComplete="email"
+                value={formik.values.email}
                 autoFocus
-                onChange={(e) => setInput(e.target.value)}
+                onChange={formik.handleChange}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                onBlur={formik.handleBlur}
               />
               <TextField
                 variant="outlined"
@@ -129,16 +102,22 @@ const SignIn = () => {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
+                }
+                onBlur={formik.handleBlur}
               />
               <Button
+                type="submit"
                 fullWidth
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                onClick={() => HandlerSubmit()}
               >
                 Sign In
-          </Button>
+              </Button>
               <div>
                 <p>Or</p>
               </div>
@@ -152,8 +131,11 @@ const SignIn = () => {
             </form>
           </div>
         </Container>
+        <Backdrop className={classes.backdrop} open={loading}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </div>
     </>
   );
-}
+};
 export default SignIn;

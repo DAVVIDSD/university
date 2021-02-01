@@ -8,8 +8,15 @@ const AuthProvider = ({children}) => {
   const [isAuthenticated, setIsAuntheticated] = useState(window.localStorage.getItem(MY_AUTH_APP));
 
   const login = useCallback((user) => {
-    window.localStorage.setItem(MY_AUTH_APP, JSON.stringify(user))
-    setIsAuntheticated(true)
+    console.log(user)
+    if (user) {
+      window.localStorage.setItem(MY_AUTH_APP, JSON.stringify(user))
+      setIsAuntheticated(true)
+      console.log(user)
+     } 
+    else {
+   alert(false);
+    }
   }, [])
 
   const logout = useCallback(() => {
