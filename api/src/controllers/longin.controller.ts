@@ -12,7 +12,6 @@ class Credentials {
   password: string
 }
 
-
 export class LonginController {
   authService: AuthService
 
@@ -31,7 +30,8 @@ export class LonginController {
     @requestBody() credentials: Credentials
   ): Promise<object> {
     let usuario = await this.authService.Identify(credentials.email, credentials.password)
-    console.log(usuario)
+    // console.log(credentials)    
+    // console.log(usuario)
     return {
       data: usuario
     }

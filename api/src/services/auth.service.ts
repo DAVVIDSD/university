@@ -1,17 +1,21 @@
-import {repository} from "@loopback/repository";
+import {repository} from '@loopback/repository';
 // Modelo
-import {Usuario} from "../models";
+import {Usuario} from '../models';
 // Repository
-import {UsuarioRepository} from "../repositories";
+import {UsuarioRepository} from '../repositories';
 
 export class AuthService {
-  constructor(@repository(UsuarioRepository)
-  public usuarioRepository: UsuarioRepository) {}
+  constructor(
+    @repository(UsuarioRepository)
+    public usuarioRepository: UsuarioRepository,
+  ) {}
   // Validacion
-  async Identify(username: string): Promise<Usuario | false> {
-    let usuario = await this.usuarioRepository.findOne({where: {nombre: username}});
+  async Identify(email: string, password: string): Promise<Usuario | false > {
+    let usuario = await this.usuarioRepository.findOne({where: {email: email}});
     if (usuario) {
-      return usuario;
+      console.log(usuario)
+      if (usuario.password === password) {return usuario};
+      // return usuario
     }
     return false;
   }
