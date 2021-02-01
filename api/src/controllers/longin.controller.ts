@@ -8,7 +8,8 @@ import {UsuarioRepository} from "../repositories";
 import {AuthService} from '../services/auth.service';
 
 class Credentials {
-  usuario: string;
+  email: string;
+  password: string
 }
 
 
@@ -29,7 +30,7 @@ export class LonginController {
   async login(
     @requestBody() credentials: Credentials
   ): Promise<object> {
-    let usuario = await this.authService.Identify(credentials.usuario)
+    let usuario = await this.authService.Identify(credentials.email, credentials.password)
     console.log(usuario)
     return {
       data: usuario
