@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import Axios from 'axios';
 // Components
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -8,12 +9,13 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 // Login
 import GoogleLogin from "react-google-login";
 import useAuthContext from '../hooks/useAuthContext';
-
-
+import {useDispatch, useSelector} from 'react-redux';
+import {Authlogin, GoogleAuth} from '../Redux/Actions/loginAction';
 const useStyles = makeStyles((theme) => ({
   paper: {
     // marginTop: theme.spacing(8),
@@ -38,63 +40,48 @@ const useStyles = makeStyles((theme) => ({
     height: '100vh',
     paddingTop: '80px',
   },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
 }));
 
 const SignIn = () => {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const {login} = useAuthContext()
+  const dispatch = useDispatch()
+  const user = useSelector((state) => state.user.data.data)
 
   const HandlerSubmit = () => {
     setLoading(true)
-    // if (input === 'HOLA') {
-
-    const data = {
-      name: input
-    }
-    if (loading === false) {
-      setTimeout(() => {
-        login(data)
-      }, 1000)
-    }
-    // }
-  }
-
-  const changeLoading = () => {
     setTimeout(() => {
+      dispatch(Authlogin(input))
+      login(user)
       setLoading(false)
-    }, 1000)
+    }, 600)
   }
 
   const classes = useStyles();
-  const url = "http://localhost:5000";
+  // const url = "http://localhost:5000";
 
   const responseGoogle = async (response) => {
     const profile = response.profileObj;
     // const data = {
-    //   nombre: profile.name,
-    //   apellido: profile.familyName,
-    //   email: profile.email
+    //   usuario: profile.name,
+    //   // apellido: profile.familyName,
+    //   // email: profile.email
     // }
-    // const res = await fetch(`${url}/usuarios`, {
-    //   method: "POST",
-    //   body: JSON.stringify(data),
-    //   headers: {
-    //     "content-type": "application/json",
-    //   },
-    // });
-    login(profile)
-    // console.log(res);
-
+    // const res = await Axios.post(`${url}/login`, data)
+    // login(res.data)
+    // // console.log(res);
+    // TODO: Terminar el login de usuario 
+    dispatch(GoogleAuth(profile.givenName))
+    console.log(profile.givenName)
+    login(user)
   };
   return (
     <>
-      {loading && (
-        <>
-          <LinearProgress />
-          {changeLoading()}
-        </>
-      )}
       <div className={classes.body} >
         <Container component="main" maxWidth="xs">
           <CssBaseline />
@@ -115,7 +102,6 @@ const SignIn = () => {
                 label="Email Address"
                 name="email"
                 value={input}
-                autoComplete="email"
                 autoFocus
                 onChange={(e) => setInput(e.target.value)}
               />
@@ -152,7 +138,12 @@ const SignIn = () => {
             </form>
           </div>
         </Container>
+        <Backdrop className={classes.backdrop} open={loading}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+
       </div>
+
     </>
   );
 }
