@@ -1,7 +1,3 @@
-// Uncomment these imports to begin using these cool features!
-
-// import {inject} from '@loopback/core';
-
 import {repository} from '@loopback/repository';
 import {post, requestBody, response} from '@loopback/rest';
 import {UsuarioRepository} from "../repositories";
@@ -14,7 +10,6 @@ class Credentials {
 
 export class LonginController {
   authService: AuthService
-
   constructor(
     @repository(UsuarioRepository)
     public usuarioRepository: UsuarioRepository,
@@ -30,8 +25,6 @@ export class LonginController {
     @requestBody() credentials: Credentials
   ): Promise<object> {
     let usuario = await this.authService.Identify(credentials.email, credentials.password)
-    // console.log(credentials)    
-    // console.log(usuario)
     return {
       data: usuario
     }
