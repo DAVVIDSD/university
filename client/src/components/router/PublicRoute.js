@@ -7,7 +7,7 @@ const PublicRoute = (props) => {
   const {isAuthenticated} = useAuthContext();
 
   if (isAuthenticated) {
-    return <Redirect to={PRIVATE} />
+    return <Redirect to={LOGIN} />
   }
   return <Route {...props} />
 }
